@@ -469,26 +469,20 @@
             if (!tabela) return null;
 
             const diferencaAbs = Math.abs(diferenca);
-            let melhorMM = null;
-            let menorDiferenca = Infinity;
-
-            // Buscar na tabela do eixo qual valor se aproxima mais da diferença
-            for (let mm in tabela) {
-                const grausMinutosStr = tabela[mm];  // Ex: "1°04'"
-                const grausDecimal = converterGrausMinutosParaDecimal(grausMinutosStr);
-                const diferenca = Math.abs(grausDecimal - diferencaAbs);
-
-                if (diferenca < menorDiferenca) {
-                    menorDiferenca = diferenca;
-                    melhorMM = mm;
-                }
+            
+            // Comparar com 0mm e 2mm: escolher o mais próximo
+            const valor0mm = 0;
+            const valor2mmStr = tabela[2];
+            const valor2mm = converterGrausMinutosParaDecimal(valor2mmStr);
+            
+            const distancia0mm = Math.abs(diferencaAbs - valor0mm);
+            const distancia2mm = Math.abs(diferencaAbs - valor2mm);
+            
+            if (distancia0mm <= distancia2mm) {
+                return { mm: 0, graus: 0 };
+            } else {
+                return { mm: 2, graus: valor2mm };
             }
-
-            if (melhorMM !== null) {
-                const grausResultado = converterGrausMinutosParaDecimal(tabela[melhorMM]);
-                return { mm: parseInt(melhorMM), graus: grausResultado };
-            }
-            return null;
         }
 
         function converterParaDecimal(graus, minutos) {
@@ -559,8 +553,12 @@
             // Atualizar cunhas
             if (cunhaLeft) {
                 document.getElementById('cunhaLeft').textContent = `${cunhaLeft.mm} mm`;
-                const direcao = diffLeft > 0 ? 'AUMENTAR' : 'DIMINUIR';
-                document.getElementById('noteLeft').textContent = `${direcao} cáster: colocar cunha com parte mais grossa para ${diffLeft > 0 ? 'TRÁS' : 'FRENTE'}`;
+                if (cunhaLeft.mm === 0) {
+                    document.getElementById('noteLeft').textContent = '✓ Não existe necessidade de cunha - alinhamento OK';
+                } else {
+                    const direcao = diffLeft > 0 ? 'AUMENTAR' : 'DIMINUIR';
+                    document.getElementById('noteLeft').textContent = `${direcao} cáster: colocar cunha com parte mais grossa para ${diffLeft > 0 ? 'TRÁS' : 'FRENTE'}`;
+                }
             } else {
                 document.getElementById('cunhaLeft').textContent = 'Não encontrada';
                 document.getElementById('noteLeft').textContent = 'Verifique a largura do eixo';
@@ -568,8 +566,12 @@
 
             if (cunhaRight) {
                 document.getElementById('cunhaRight').textContent = `${cunhaRight.mm} mm`;
-                const direcao = diffRight > 0 ? 'AUMENTAR' : 'DIMINUIR';
-                document.getElementById('noteRight').textContent = `${direcao} cáster: colocar cunha com parte mais grossa para ${diffRight > 0 ? 'TRÁS' : 'FRENTE'}`;
+                if (cunhaRight.mm === 0) {
+                    document.getElementById('noteRight').textContent = '✓ Não existe necessidade de cunha - alinhamento OK';
+                } else {
+                    const direcao = diffRight > 0 ? 'AUMENTAR' : 'DIMINUIR';
+                    document.getElementById('noteRight').textContent = `${direcao} cáster: colocar cunha com parte mais grossa para ${diffRight > 0 ? 'TRÁS' : 'FRENTE'}`;
+                }
             } else {
                 document.getElementById('cunhaRight').textContent = 'Não encontrada';
                 document.getElementById('noteRight').textContent = 'Verifique a largura do eixo';
