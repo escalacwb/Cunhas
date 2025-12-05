@@ -465,25 +465,26 @@
         }
 
         function encontrarCunha(diferenca, largura) {
-            const tabela = tabelasCunha[parseFloat(largura)];
-            if (!tabela) return null;
+    const tabela = tabelasCunha[parseFloat(largura)];
+    if (!tabela) return null;
 
-            const diferencaAbs = Math.abs(diferenca);
-            
-            // Comparar com 0mm e 2mm: escolher o mais próximo
-            const valor0mm = 0;
-            const valor2mmStr = tabela[2];
-            const valor2mm = converterGrausMinutosParaDecimal(valor2mmStr);
-            
-            const distancia0mm = Math.abs(diferencaAbs - valor0mm);
-            const distancia2mm = Math.abs(diferencaAbs - valor2mm);
-            
-            if (distancia0mm <= distancia2mm) {
-                return { mm: 0, graus: 0 };
-            } else {
-                return { mm: 2, graus: valor2mm };
-            }
+    const alvo = Math.abs(diferenca); // diferença de cáster em graus
+    let melhorMm = 0;
+    let melhorDelta = alvo; // começa com 0 mm
+
+    Object.entries(tabela).forEach(([mmStr, grausMinutos]) => {
+        const mm = parseInt(mmStr, 10);
+        if (mm === 0) return; // já considerado
+        const valor = converterGrausMinutosParaDecimal(grausMinutos);
+        const delta = Math.abs(alvo - valor);
+        if (delta < melhorDelta) {
+            melhorDelta = delta;
+            melhorMm = mm;
         }
+    });
+
+    return { mm: melhorMm };
+}
 
         function converterParaDecimal(graus, minutos) {
             return parseFloat(graus) + parseFloat(minutos) / 60;
