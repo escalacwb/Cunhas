@@ -465,26 +465,26 @@
         }
 
         function encontrarCunha(diferenca, largura) {
-    const tabela = tabelasCunha[parseFloat(largura)];
-    if (!tabela) return null;
+            const tabela = tabelasCunha[parseFloat(largura)];
+            if (!tabela) return null;
 
-    const alvo = Math.abs(diferenca); // diferença de cáster em graus
-    let melhorMm = 0;
-    let melhorDelta = alvo; // começa com 0 mm
+            const alvo = Math.abs(diferenca); // diferença de cáster em graus
+            let melhorMm = 0;
+            let melhorDelta = alvo; // começa com 0 mm
 
-    Object.entries(tabela).forEach(([mmStr, grausMinutos]) => {
-        const mm = parseInt(mmStr, 10);
-        if (mm === 0) return; // já considerado
-        const valor = converterGrausMinutosParaDecimal(grausMinutos);
-        const delta = Math.abs(alvo - valor);
-        if (delta < melhorDelta) {
-            melhorDelta = delta;
-            melhorMm = mm;
+            Object.entries(tabela).forEach(([mmStr, grausMinutos]) => {
+                const mm = parseInt(mmStr, 10);
+                if (mm === 0) return; // já considerado
+                const valor = converterGrausMinutosParaDecimal(grausMinutos);
+                const delta = Math.abs(alvo - valor);
+                if (delta < melhorDelta) {
+                    melhorDelta = delta;
+                    melhorMm = mm;
+                }
+            });
+
+            return { mm: melhorMm };
         }
-    });
-
-    return { mm: melhorMm };
-}
 
         function converterParaDecimal(graus, minutos) {
             return parseFloat(graus) + parseFloat(minutos) / 60;
@@ -551,14 +551,15 @@
             const emTolerancia = Math.abs(diffLeft) <= 0.5 && Math.abs(diffRight) <= 0.5;
             document.getElementById('statusDiff').textContent = emTolerancia ? '✓ OK' : '⚠️ Fora';
 
-            // Atualizar cunhas
+            // Atualizar cunhas (ajuste principal: FRENTE diminui, TRÁS aumenta)
             if (cunhaLeft) {
                 document.getElementById('cunhaLeft').textContent = `${cunhaLeft.mm} mm`;
                 if (cunhaLeft.mm === 0) {
                     document.getElementById('noteLeft').textContent = '✓ Não existe necessidade de cunha - alinhamento OK';
                 } else {
-                    const direcao = diffLeft > 0 ? 'AUMENTAR' : 'DIMINUIR';
-                    document.getElementById('noteLeft').textContent = `${direcao} cáster: colocar cunha com parte mais grossa para ${diffLeft > 0 ? 'TRÁS' : 'FRENTE'}`;
+                    const direcao = diffLeft > 0 ? 'DIMINUIR' : 'AUMENTAR';
+                    const posicao = diffLeft > 0 ? 'FRENTE' : 'TRÁS';
+                    document.getElementById('noteLeft').textContent = `${direcao} cáster: colocar cunha com parte mais grossa para ${posicao}`;
                 }
             } else {
                 document.getElementById('cunhaLeft').textContent = 'Não encontrada';
@@ -570,8 +571,9 @@
                 if (cunhaRight.mm === 0) {
                     document.getElementById('noteRight').textContent = '✓ Não existe necessidade de cunha - alinhamento OK';
                 } else {
-                    const direcao = diffRight > 0 ? 'AUMENTAR' : 'DIMINUIR';
-                    document.getElementById('noteRight').textContent = `${direcao} cáster: colocar cunha com parte mais grossa para ${diffRight > 0 ? 'TRÁS' : 'FRENTE'}`;
+                    const direcao = diffRight > 0 ? 'DIMINUIR' : 'AUMENTAR';
+                    const posicao = diffRight > 0 ? 'FRENTE' : 'TRÁS';
+                    document.getElementById('noteRight').textContent = `${direcao} cáster: colocar cunha com parte mais grossa para ${posicao}`;
                 }
             } else {
                 document.getElementById('cunhaRight').textContent = 'Não encontrada';
@@ -581,14 +583,14 @@
             // Instruções
             let instrucoes = '<strong>1. Posição da cunha ao colocar:</strong><br>';
             if (diffLeft > 0) {
-                instrucoes += '• Esquerda: Cunha com parte MAIS GROSSA para TRÁS (aumenta cáster)<br>';
-            } else {
                 instrucoes += '• Esquerda: Cunha com parte MAIS GROSSA para FRENTE (diminui cáster)<br>';
+            } else {
+                instrucoes += '• Esquerda: Cunha com parte MAIS GROSSA para TRÁS (aumenta cáster)<br>';
             }
             if (diffRight > 0) {
-                instrucoes += '• Direita: Cunha com parte MAIS GROSSA para TRÁS (aumenta cáster)<br>';
-            } else {
                 instrucoes += '• Direita: Cunha com parte MAIS GROSSA para FRENTE (diminui cáster)<br>';
+            } else {
+                instrucoes += '• Direita: Cunha com parte MAIS GROSSA para TRÁS (aumenta cáster)<br>';
             }
             instrucoes += '<br><strong>2. Verificação:</strong><br>';
             instrucoes += '• Use EPIs obrigatórios<br>';
